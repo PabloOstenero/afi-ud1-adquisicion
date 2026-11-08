@@ -1,0 +1,25 @@
+﻿2026-11-03 09:00:41  pablo  Politica global WriteProtect=1
+2026-11-03 09:00:41  pablo  La politica se aplica al conectar: desconecta y vuelve a conectar los USB que ya estuvieran puestos.
+2026-11-03 09:00:52  pablo  Politica global WriteProtect=0
+2026-11-08 18:37:49  pablo  Politica global WriteProtect=1
+2026-11-08 18:37:49  pablo  La politica se aplica al conectar: desconecta y vuelve a conectar los USB que ya estuvieran puestos.
+2026-11-08 18:38:23  pablo  Comprobacion: Disco 1 E: : no deja escribir -> PROTEGIDO
+2026-11-08 18:38:23  pablo  Comprobacion: Disco 1 F: : no deja escribir -> PROTEGIDO
+2026-11-08 18:47:47  pablo  Politica global WriteProtect=0
+2026-11-08 18:47:50  pablo  Comprobacion: Disco 1 E: : no deja escribir -> PROTEGIDO
+2026-11-08 18:47:50  pablo  Comprobacion: Disco 1 F: : no deja escribir -> PROTEGIDO
+2026-11-08 18:48:21  pablo  Comprobacion: Disco 1 E: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 18:48:21  pablo  Comprobacion: Disco 1 F: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 18:59:28  pablo  Comprobacion: Disco 1 G: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 18:59:48  pablo  Comprobacion: Disco 1 G: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:01:18  pablo  Comprobacion: Disco 1 G: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:01:41  pablo  Comprobacion: Disco 1 G: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:04:58  pablo  Politica global WriteProtect=1
+2026-11-08 19:04:58  pablo  La politica se aplica al conectar: desconecta y vuelve a conectar los USB que ya estuvieran puestos.
+2026-11-08 19:05:24  pablo  Comprobacion: Disco 1 E: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:05:24  pablo  Comprobacion: Disco 1 F: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:05:24  pablo  Comprobacion: Disco 2 G: : no deja escribir -> PROTEGIDO
+2026-11-08 19:55:48  pablo  Politica global WriteProtect=0
+2026-11-08 19:56:16  pablo  Comprobacion: Disco 1 E: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:56:16  pablo  Comprobacion: Disco 1 F: : ESCRIBE -> NO PROTEGIDO
+2026-11-08 19:56:16  pablo  Comprobacion: Disco 2 G: : ESCRIBE -> NO PROTEGIDO

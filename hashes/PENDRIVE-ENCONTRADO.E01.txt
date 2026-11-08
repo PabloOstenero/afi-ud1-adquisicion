@@ -1,0 +1,45 @@
+﻿Created By AccessData® FTK® Imager 3.1.1.8 
+
+Case Information: 
+Acquired using: ADI3.1.1.8
+Case Number: 001
+Evidence Number: 06
+Unique Description: 
+Examiner:  
+Notes:  
+
+--------------------------------------------------------------
+
+Information for D:\caso\pendrive\PENDRIVE-ENCONTRADO:
+
+Physical Evidentiary Item (Source) Information:
+[Device Info]
+ Source Type: Physical
+[Drive Geometry]
+ Cylinders: 7.540
+ Tracks per Cylinder: 255
+ Sectors per Track: 63
+ Bytes per Sector: 512
+ Sector Count: 121.145.344
+[Physical Drive Information]
+ Drive Model: Verbatim STORE N GO USB Device
+ Drive Serial Number: 9404010550C0
+ Drive Interface Type: USB
+ Removable drive: True
+ Source data size: 59153 MB
+ Sector count:    121145344
+[Computed Hashes]
+ MD5 checksum:    155d3c2a470eef3fb404bb1d4c09bc7e
+ SHA1 checksum:   a6b39ff94f8007e12adc7409ad8cca7966e97a11
+
+Image Information:
+ Acquisition started:   Sun Nov 08 19:12:23 2026
+ Acquisition finished:  Sun Nov 08 19:38:08 2026
+ Segment list:
+  D:\caso\pendrive\PENDRIVE-ENCONTRADO.E01
+
+Image Verification Results:
+ Verification started:  Sun Nov 08 19:38:08 2026
+ Verification finished: Sun Nov 08 19:42:15 2026
+ MD5 checksum:    155d3c2a470eef3fb404bb1d4c09bc7e : verified
+ SHA1 checksum:   a6b39ff94f8007e12adc7409ad8cca7966e97a11 : verified

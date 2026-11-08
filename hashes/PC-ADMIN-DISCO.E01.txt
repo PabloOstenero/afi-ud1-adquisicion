@@ -1,0 +1,39 @@
+﻿Created By AccessData® FTK® Imager 3.1.1.8 
+
+Case Information: 
+Acquired using: ADI3.1.1.8
+Case Number: 001
+Evidence Number: 05
+Unique Description: 
+Examiner:  
+Notes:  
+
+--------------------------------------------------------------
+
+Information for D:\caso\disco\PC-ADMIN-DISCO:
+
+Physical Evidentiary Item (Source) Information:
+[Device Info]
+ Source Type: Physical
+[Drive Geometry]
+ Bytes per Sector: 512
+ Sector Count: 67.108.864
+[Image]
+ Image Type: Raw (dd)
+ Source data size: 32768 MB
+ Sector count:    67108864
+[Computed Hashes]
+ MD5 checksum:    6e8ffc4a88831d33425ca26427a339bb
+ SHA1 checksum:   7b826ed7b51b58227bc6376bf56e0dbdfb329d28
+
+Image Information:
+ Acquisition started:   Sun Nov 08 17:44:22 2026
+ Acquisition finished:  Sun Nov 08 17:47:16 2026
+ Segment list:
+  D:\caso\disco\PC-ADMIN-DISCO.E01
+
+Image Verification Results:
+ Verification started:  Sun Nov 08 17:47:16 2026
+ Verification finished: Sun Nov 08 17:50:03 2026
+ MD5 checksum:    6e8ffc4a88831d33425ca26427a339bb : verified
+ SHA1 checksum:   7b826ed7b51b58227bc6376bf56e0dbdfb329d28 : verified
