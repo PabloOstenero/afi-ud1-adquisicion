@@ -268,6 +268,134 @@ También aparece un fichero borrado `.prueba-bloqueo-…` (fecha 08/11/2026): lo
 #### 4.2.5 Cierre
 Orden: cerrar FTK Imager, quitar el pendrive con *Quitar hardware de forma segura*, desactivar la política en `bloqueo-usb.ps1` (19:55) y copiar `bloqueo-usb.log` sin editarlo a `hashes/`.
 
+## 5. Parte 3 · Búsqueda de la marca (desde Linux)
+ 
+La marca de autoría es `AFI-PabloOstenero-20261103`. En la VM, el fichero del escritorio es `AFI-PabloOstenero-20261103.txt`. Búsquedas realizadas del 2026-11-08 al 2026-11-09, desde CAINE, sobre copias de trabajo y con los soportes en solo lectura.
+ 
+### 5.1 Preparación
+ 
+#### Disco de trabajo (VHD) y copias de trabajo (2026-11-08, 21:02:07 – 21:03:24, anfitrión)
+No se dispone de un pendrive adecuado para las copias de trabajo, y el pendrive encontrado no se reutiliza porque es evidencia. Se usa un **disco virtual VHD de 20 GB**, NTFS, etiqueta `TRABAJO`, en `D:\caso\trabajo\trabajo.vhd` (en el mismo disco físico que las imágenes maestras, por lo que no es una copia de seguridad independiente). [COMPLETAR: comandos de `diskpart` usados y hora de creación.]
+ 
+Con el VHD montado como `T:`:
+```
+Copy-Item D:\caso\disco\PC-ADMIN-DISCO.E01 T:\
+Copy-Item D:\caso\pendrive\PENDRIVE-ENCONTRADO.E01 T:\
+Get-FileHash D:\caso\disco\PC-ADMIN-DISCO.E01, D:\caso\pendrive\PENDRIVE-ENCONTRADO.E01, T:\*.E01 -Algorithm SHA256 | Select-Object Hash, Path | Export-Csv D:\caso\trabajo\hashes-copias.csv -NoTypeInformation
+```
+Resultado (`hashes-copias.csv`): cada copia tiene el mismo SHA-256 que su maestra.
+ 
+| Imagen | SHA-256 (maestra = copia) |
+|---|---|
+| `PC-ADMIN-DISCO.E01` | `867D050D858BE25521F4FCEBF41591B2CE6E67077831DB82E10FE142E8437068` |
+| `PENDRIVE-ENCONTRADO.E01` | `266ACA61B73AFB5314612E5BC6DF7FBA3A7C88066B65F5F6FB0F571992033759` |
+ 
+Después se desmontó el VHD de Windows (`detach vdisk`) y se añadió a la VM de Linux.
+ 
+#### Entorno de análisis
+- Linux: CAINE (ISO de 2025-03-16), arrancado en modo live desde la ISO (sin instalar), en una máquina virtual distinta de `FORENSIC_10`, que no se arrancó en ningún momento. [COMPLETAR: RAM y CPU asignadas.]
+- Herramientas: `strings`, `unzip`, `ewfverify`, `ewfmount` (versión 20140812), `mmls`, `ntfs-3g`, `blockdev`. 
+- Dispositivos (`lsblk -f`): `sdb1` NTFS `TRABAJO` (el VHD con las copias de trabajo); `sdc1` NTFS `Pen profesor` y `sdc2` FAT12 (las dos particiones del USB de respuesta); `sda` sin particiones ni sistema de ficheros reconocible.
+- No se pasó a CAINE el pendrive encontrado ni el disco de `FORENSIC_10`; se trabaja solo con las copias.
+
+#### Montaje en solo lectura
+```
+blockdev --setro /dev/sdb
+blockdev --setro /dev/sdc
+mkdir -p /mnt/resp /mnt/trab
+mount -t ntfs-3g -o ro /dev/sdc1 /mnt/resp
+mount -t ntfs-3g -o ro /dev/sdb1 /mnt/trab
+mount | grep -E "resp|trab"
+```
+`mount` muestra `ro` en las dos líneas (`fuseblk (ro,relatime,…)`). Los avisos del `fstab` que aparecen al montar son informativos y no impiden el montaje.
+ 
+Comprobación de las copias en Linux (`sha256sum /mnt/trab/*.E01`): los hashes coinciden con los calculados en Windows. 
+
+### 5.2 Marca en la RAM
+ 
+Volcado: `/mnt/resp/USB-RESPUESTA/windows/memoria/DumpIt/FORENSE-06-20261105-125305.raw` (el equipo investigado se llama `FORENSE-06`), 1,0 GB.
+ 
+```
+find /mnt/resp -iname "*.raw"
+ls -lh "<ruta>"
+sha256sum "<ruta>"
+strings -el "<ruta>" | grep "AFI-"
+```
+- SHA-256 en Linux: `bbe1ddb8ece31d8c4960f4a722433d496baf42b64f2be8b38c69b1d8fa935a97`
+- Horas (anfitrión): búsqueda de la marca 23:30; SHA-256 de 23:31 a 23:36; segundo `grep` de 23:38 a 23:39.
+- Resultado: `AFI-PA~1.TXT` (nombre corto 8.3 del fichero, con basura de la tabla pegada al final, `TXTene0`) y `AFI-PabloOstenero-20261103.txt`. Es decir, en memoria aparecen el nombre largo y el nombre corto del fichero del escritorio. 
+- `-el` busca texto UTF-16 de little-endian, que es el que usa Windows.
+- La primera ejecución de `strings` se quedó esperando por una comilla sin cerrar y se canceló con Ctrl+C; se repitió correctamente (incidencia 17).
+- Captura en `capturas/`.
+
+### 5.3 Marca en el triaje (`$MFT`)
+ 
+```
+cd /mnt/resp/USB-RESPUESTA/salida/triaje
+sha256sum triaje-velociraptor.zip
+unzip -l triaje-velociraptor.zip | grep -i mft
+unzip -p triaje-velociraptor.zip 'uploads/ntfs/%5C%5C.%5CC%3A/$MFT' | strings -el | grep -i "AFI-"
+```
+- SHA-256 en Linux: `d2b2ecd00c1785db5287ac8b90e7e997ce87adac7f51015ef24147a36e33eb56`, igual que el calculado en Windows. Hora: 23:40 (anfitrión).
+- `$MFT` está en el zip: `uploads/ntfs/%5C%5C.%5CC%3A/$MFT`, 69.468.160 bytes. Hora: 23:41.
+- Resultado del `grep` (00:29): `AFI-PA~1.TXT` y `AFI-PabloOstenero-20261103.txt`.
+- El triaje no copia los ficheros del escritorio, pero `$MFT` (tabla de ficheros de NTFS) sí registra su nombre, y eso es lo que se localiza: **el nombre del fichero, no su contenido**. Se busca `AFI-` y no `marca-` porque el fichero se llama `AFI-PabloOstenero-20261103.txt`.
+- Captura en `capturas/`.
+
+### 5.4 Marca en la imagen del disco
+ 
+Imagen utilizada: la copia de trabajo `PC-ADMIN-DISCO.E01`.
+ 
+**Verificación** (`ewfverify /mnt/trab/PC-ADMIN-DISCO.E01`, hora CAINE 22:55:11, anfitrión 23:50–23:55): `ewfverify: SUCCESS`. Se leyeron 34.359.738.368 bytes (32 GiB) en 5 min 43 s. MD5 almacenado = MD5 calculado = `6e8ffc4a88831d33425ca26427a339bb`; SHA1 = `7b826ed7b51b58227bc6376bf56e0dbdfb329d28`. Coinciden con los de FTK Imager (4.1.3).
+ 
+**Montaje:**
+```
+mkdir -p /mnt/ewf_disco /mnt/disco
+ewfmount /mnt/trab/PC-ADMIN-DISCO.E01 /mnt/ewf_disco
+mmls /mnt/ewf_disco/ewf1
+mount -t ntfs-3g -o ro,loop,offset=$((206848*512)) /mnt/ewf_disco/ewf1 /mnt/disco
+```
+`mmls` (tabla de particiones DOS, sectores de 512 bytes):
+ 
+| Slot | Inicio | Fin | Longitud | Descripción |
+|---|---|---|---|---|
+| 002 | 2048 | 206847 | 204800 (100 MB) | NTFS / exFAT (0x07) |
+| 003 | 206848 | 67106815 | 66899968 (unos 31,9 GiB) | NTFS / exFAT (0x07) |
+ 
+Se monta la partición 003 (offset 206848) porque es la de datos, la unidad `C:`. La de 100 MB es la partición reservada del sistema. `mount | grep /mnt/disco` muestra `ro`.
+ 
+**Resultado** (hora anfitrión 00:03): `ls /mnt/disco/Users` muestra `Administrador`, `All Users`, `Default`, `Default User`, `Public` y `desktop.ini`. En `Users/Administrador/Desktop` está `AFI-PabloOstenero-20261103.txt` (0 bytes, fecha 3 nov 08:30, según el reloj de la VM). El fichero está vacío, así que la marca se identifica por el nombre y no por el contenido. En el escritorio hay también `crea_user.py`, `crea_user.txt` y `desktop.ini`, que no se analizan en esta actividad. Capturas en `capturas/`.
+ 
+### 5.5 Marca en la imagen del pendrive
+ 
+Imagen utilizada: la copia de trabajo `PENDRIVE-ENCONTRADO.E01`.
+ 
+**Verificación** (`ewfverify`, hora CAINE 23:13:35, anfitrión 00:04–00:13): `ewfverify: SUCCESS`. Se leyeron 62.026.416.128 bytes (57 GiB) en 9 min 4 s. MD5 = `155d3c2a470eef3fb404bb1d4c09bc7e`; SHA1 = `a6b39ff94f8007e12adc7409ad8cca7966e97a11`. Coinciden con los de FTK Imager (4.2.4).
+ 
+**Partición** (`mmls`, 00:16 anfitrión): una sola partición NTFS, inicio 128, fin 121145343, longitud 121145216 sectores (unos 59.152 MiB).
+ 
+**Montaje:**
+```
+mkdir -p /mnt/ewf_pen /mnt/pendrive
+ewfmount /mnt/trab/PENDRIVE-ENCONTRADO.E01 /mnt/ewf_pen
+mount -t ntfs-3g -o ro,loop,offset=$((128*512)) /mnt/ewf_pen/ewf1 /mnt/pendrive
+```
+El primer intento falló con `failed to setup loop device` y `/mnt/pendrive` quedó vacío (00:20). Se comprobó con `losetup -a` (bucles en uso: `loop0` de CAINE y `loop1` del disco), `losetup -f` (`/dev/loop2` libre) y `dmesg | tail -5` (sin errores del montaje). Solución: [COMPLETAR: reintento con el mismo comando / creación manual del bucle con `losetup -r -f --show -o $((128*512))` / lectura con `fls -o 128` e `icat`], a las [COMPLETAR: hora].
+ 
+**Resultado:** en la raíz del pendrive aparece `AFI-PabloOstenero-20261103.txt`, y su contenido es `AFI-PabloOstenero-20261103` [COMPLETAR: confirmar el `cat`]. Capturas en `capturas/`.
+ 
+### 5.6 Cierre
+Desmontaje de los sistemas de ficheros y de las imágenes (`umount /mnt/disco /mnt/pendrive`, `umount /mnt/ewf_disco /mnt/ewf_pen`, `umount /mnt/resp /mnt/trab`) y comprobación con `mount | grep -E "ewf|disco|pendrive|resp|trab"` sin salida. [COMPLETAR: confirmar.]
+ 
+### 5.7 Resumen de resultados
+ 
+| Adquisición | Dónde se encuentra la marca | Qué se localiza |
+|---|---|---|
+| RAM | `strings -el … \| grep "AFI-"` | Nombre largo y corto del fichero (`AFI-PabloOstenero-20261103.txt`, `AFI-PA~1.TXT`) |
+| Triaje | `$MFT` dentro del zip | Nombre del fichero, no su contenido |
+| Imagen del disco | `Users/Administrador/Desktop` | Fichero de 0 bytes |
+| Imagen del pendrive | Raíz del pendrive | Fichero con el texto de la marca |
+
 ## 7. Incidencias y errores
 
 | Nº | Hora | Qué pasó | Causa | Qué hice |
@@ -283,3 +411,4 @@ Orden: cerrar FTK Imager, quitar el pendrive con *Quitar hardware de forma segur
 | 9 | 17:20 | La primera E01 del disco (`PC-ADMIN.E01`–`.E04`) tenía 26.118.144 sectores y, en el visor hexadecimal, la cabecera `<<< Oracle VirtualBox Disk Image >>>`. | FTK Imager 3.1.1.8 trata el `.vdi` como un fichero y no lee el disco que contiene. | Se conservó como historial y se hizo una nueva imagen a partir de un `.raw` creado con `clonemedium` (4.1.3). |
 | 10 | 19:01 | El botón *Solo lectura (disco seleccionado)* de `bloqueo-usb.ps1` devolvió `Set-DiskMode` no se reconoce como cmdlet. | El script llama a un cmdlet que no existe en este Windows. | Se usó *Activar para todos los USB* (política global). No se modificó el script. |
 | 11 | 19:01:18 | La comprobación con el pendrive sin proteger escribió un fichero de prueba que luego se borró (`.prueba-bloqueo-…`). | El botón *Comprobar* prueba escribiendo. | Se documenta; el fichero borrado aparece en la imagen. Desde entonces, *Comprobar* solo con el pendrive protegido. |
+| 12 | 00:20 | El montaje de la imagen del pendrive falló: `failed to setup loop device`. | No determinada: hay un bucle libre y `dmesg` no muestra error. | Volví a montarlo y esta vez funcionó |
