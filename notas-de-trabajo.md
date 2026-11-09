@@ -126,7 +126,7 @@ Resultado (captura en `capturas/`):
 | `C:` (OS Volume) | 31,90 GB | None | Fully Decrypted (0 %) | Off | None Found |
 | `D:` (Data Volume, «Pen profesor») | 3,56 GB | None | Fully Decrypted (0 %) | Off | None Found |
 
-**Conclusión:** BitLocker no está activo en ninguno de los volúmenes visibles. Sin protectores de clave no hay claves de recuperación que obtener ni volumen descifrado que adquirir en vivo, así que no se realiza ninguna acción adicional. La comprobación se ha limitado a BitLocker. [COMPLETAR si se hicieron otras comprobaciones, por ejemplo `wmic logicaldisk`.]
+**Conclusión:** BitLocker no está activo en ninguno de los volúmenes visibles. Sin protectores de clave no hay claves de recuperación que obtener ni volumen descifrado que adquirir en vivo, así que no se realiza ninguna acción adicional. La comprobación se ha limitado a BitLocker.
 
 ### 3.7 Apagado (2026-11-07 17:09)
 **Decisión:** corte de energía inmediato, no apagado ordenado.
@@ -275,7 +275,7 @@ La marca de autoría es `AFI-PabloOstenero-20261103`. En la VM, el fichero del e
 ### 5.1 Preparación
  
 #### Disco de trabajo (VHD) y copias de trabajo (2026-11-08, 21:02:07 – 21:03:24, anfitrión)
-No se dispone de un pendrive adecuado para las copias de trabajo, y el pendrive encontrado no se reutiliza porque es evidencia. Se usa un **disco virtual VHD de 20 GB**, NTFS, etiqueta `TRABAJO`, en `D:\caso\trabajo\trabajo.vhd` (en el mismo disco físico que las imágenes maestras, por lo que no es una copia de seguridad independiente). [COMPLETAR: comandos de `diskpart` usados y hora de creación.]
+No se dispone de un pendrive adecuado para las copias de trabajo, y el pendrive encontrado no se reutiliza porque es evidencia. Se usa un **disco virtual VHD de 20 GB**, NTFS, etiqueta `TRABAJO`, en `D:\caso\trabajo\trabajo.vhd` (en el mismo disco físico que las imágenes maestras, por lo que no es una copia de seguridad independiente).
  
 Con el VHD montado como `T:`:
 ```
@@ -293,7 +293,7 @@ Resultado (`hashes-copias.csv`): cada copia tiene el mismo SHA-256 que su maestr
 Después se desmontó el VHD de Windows (`detach vdisk`) y se añadió a la VM de Linux.
  
 #### Entorno de análisis
-- Linux: CAINE (ISO de 2025-03-16), arrancado en modo live desde la ISO (sin instalar), en una máquina virtual distinta de `FORENSIC_10`, que no se arrancó en ningún momento. [COMPLETAR: RAM y CPU asignadas.]
+- Linux: CAINE (ISO de 2025-03-16), arrancado en modo live desde la ISO (sin instalar), en una máquina virtual distinta de `FORENSIC_10`, que no se arrancó en ningún momento.
 - Herramientas: `strings`, `unzip`, `ewfverify`, `ewfmount` (versión 20140812), `mmls`, `ntfs-3g`, `blockdev`. 
 - Dispositivos (`lsblk -f`): `sdb1` NTFS `TRABAJO` (el VHD con las copias de trabajo); `sdc1` NTFS `Pen profesor` y `sdc2` FAT12 (las dos particiones del USB de respuesta); `sda` sin particiones ni sistema de ficheros reconocible.
 - No se pasó a CAINE el pendrive encontrado ni el disco de `FORENSIC_10`; se trabaja solo con las copias.
@@ -380,12 +380,12 @@ mkdir -p /mnt/ewf_pen /mnt/pendrive
 ewfmount /mnt/trab/PENDRIVE-ENCONTRADO.E01 /mnt/ewf_pen
 mount -t ntfs-3g -o ro,loop,offset=$((128*512)) /mnt/ewf_pen/ewf1 /mnt/pendrive
 ```
-El primer intento falló con `failed to setup loop device` y `/mnt/pendrive` quedó vacío (00:20). Se comprobó con `losetup -a` (bucles en uso: `loop0` de CAINE y `loop1` del disco), `losetup -f` (`/dev/loop2` libre) y `dmesg | tail -5` (sin errores del montaje). Solución: [COMPLETAR: reintento con el mismo comando / creación manual del bucle con `losetup -r -f --show -o $((128*512))` / lectura con `fls -o 128` e `icat`], a las [COMPLETAR: hora].
+El primer intento falló con `failed to setup loop device` y `/mnt/pendrive` quedó vacío (00:20). Se comprobó con `losetup -a` (bucles en uso: `loop0` de CAINE y `loop1` del disco), `losetup -f` (`/dev/loop2` libre) y `dmesg | tail -5` (sin errores del montaje). Solución: No se sabe realmente qué pasó, pero se volvió a hacer con los mismos comandos y todo funcionó.
  
-**Resultado:** en la raíz del pendrive aparece `AFI-PabloOstenero-20261103.txt`, y su contenido es `AFI-PabloOstenero-20261103` [COMPLETAR: confirmar el `cat`]. Capturas en `capturas/`.
+**Resultado:** en la raíz del pendrive aparece `AFI-PabloOstenero-20261103.txt`, y su contenido es `AFI-PabloOstenero-20261103`. Capturas en `capturas/`.
  
 ### 5.6 Cierre
-Desmontaje de los sistemas de ficheros y de las imágenes (`umount /mnt/disco /mnt/pendrive`, `umount /mnt/ewf_disco /mnt/ewf_pen`, `umount /mnt/resp /mnt/trab`) y comprobación con `mount | grep -E "ewf|disco|pendrive|resp|trab"` sin salida. [COMPLETAR: confirmar.]
+Desmontaje de los sistemas de ficheros y de las imágenes (`umount /mnt/disco /mnt/pendrive`, `umount /mnt/ewf_disco /mnt/ewf_pen`, `umount /mnt/resp /mnt/trab`) y comprobación con `mount | grep -E "ewf|disco|pendrive|resp|trab"` sin salida. 
  
 ### 5.7 Resumen de resultados
  
@@ -396,6 +396,72 @@ Desmontaje de los sistemas de ficheros y de las imágenes (`umount /mnt/disco /m
 | Imagen del disco | `Users/Administrador/Desktop` | Fichero de 0 bytes |
 | Imagen del pendrive | Raíz del pendrive | Fichero con el texto de la marca |
 
+## 6. Parte 4 · Cadena de custodia
+ 
+### 6.1 Acta de adquisición (`acta-adquisicion.pdf`)
+Rellenada a partir de la plantilla de los apuntes, con cada evidencia, la herramienta, el formato, el SHA-256 y las incidencias, y exportada a PDF para firmar.
+ 
+- **Personas:** Pablo Ostenero Reyes (analista) y Luis Miguel Gomila Domínguez (testigo: recibe la entrega y verifica los hashes). Fedatario: no aplica.
+- **Hora de inicio y fin:** del 03/11/2026 09:32 al 09/11/2026 09:32 (CET). El reloj de la VM no tenía desfase respecto a la hora real: la captura inicial muestra las 9:31 del 3/11/2026 en el escritorio de la VM.
+- **Fotografías:** dos del pendrive (anverso y reverso) y la captura de la pantalla inicial de la VM, con la marca en el Bloc de notas.
+- **Orden de los pasos:** empieza por la marca, como pide el enunciado, y sigue el orden real de la intervención (cronología en 6.8).
+- **Pendiente en el acta:** versión de DumpIt 1.3.2.20110401.
+
+### 6.2 Imagen maestra y copia de trabajo
+Las copias de trabajo para la UD2 se hicieron el 2026-11-08 de 21:02:07 a 21:03:24 (anfitrión), desde `D:\caso\disco` y `D:\caso\pendrive` al disco virtual de trabajo (VHD NTFS de 20 GB, `T:`), con la comparación de hashes en el mismo comando (`hashes-copias.csv`). Los detalles están en la sección 5.1.
+ 
+| Imagen | SHA-256 (maestra = copia) |
+|---|---|
+| `PC-ADMIN-DISCO.E01` | `867D050D858BE25521F4FCEBF41591B2CE6E67077831DB82E10FE142E8437068` |
+| `PENDRIVE-ENCONTRADO.E01` | `266ACA61B73AFB5314612E5BC6DF7FBA3A7C88066B65F5F6FB0F571992033759` |
+ 
+Además, en CAINE se comprobó que las dos copias seguían intactas (`sha256sum`) y se verificaron con `ewfverify` (SUCCESS en las dos). El VHD está en el mismo disco físico que las maestras, así que no es una copia de seguridad independiente.
+ 
+### 6.3 Fichero de hashes (`hashes.sha256`)
+- Carpeta con todas las evidencias en el pendrive de entrega: `E:\caso 01\`.
+- Contenido visible en la verificación: `FORENSE-06-20261105-125305.raw`, `PC-ADMIN-DISCO.E01`, `PENDRIVE-ENCONTRADO.E01`, `red.pcap`, la carpeta de volátiles `CASO-01_PC-ADMIN_20261106-153937\` (con su `00-registro.txt` y `hashes-sha256.csv`) y, en `triaje\`, `lista-artefactos.txt`, `show-collectors-file.txt`, `triaje-velociraptor.zip` y `velociraptor-consola.txt`. 
+- El fichero `hashes.sha256` va a `hashes/` en el repositorio, junto con los registros de las herramientas.
+
+### 6.4 Entrega al compañero y devolución
+- **09/11/2026, 09:26:** entrego mis evidencias a Luis Miguel Gomila Domínguez, con `hashes.sha256`.
+- **Verificación:** el receptor comprueba todos los hashes desde la carpeta de las evidencias. Se hizo con este script de PowerShell, equivalente a `sha256sum -c hashes.sha256` porque el equipo de verificación era Windows:
+```
+  Get-Content .\hashes.sha256 | ForEach-Object {
+      if ($_ -match '^\s*([0-9a-fA-F]{64})\s+\*?(.+?)\s*$') {
+          $esperado = $Matches[1].ToLower()
+          $archivo  = $Matches[2]
+          if (Test-Path -LiteralPath $archivo) {
+              $real = (Get-FileHash -LiteralPath $archivo -Algorithm SHA256).Hash.ToLower()
+              if ($real -eq $esperado) { "${archivo}: OK" }
+              else { "${archivo}: FALLO" }
+          } else {
+              "${archivo}: NO ENCONTRADO"
+          }
+      }
+  }
+```
+- **Resultado:** todas las líneas que se ven en la captura salen `OK` (RAM, `red.pcap`, las dos E01, los ficheros de volátiles y de triaje); no hay ninguna `FALLO` ni `NO ENCONTRADO`. La captura se corta al final, en `velociraptor-consola.txt`. Captura en `capturas/`.
+- **09/11/2026, 09:32:** Luis Miguel me devuelve las evidencias; se registra la devolución y se vuelve a comprobar el hash.
+- **Firmas:** las dos transferencias (entrega y devolución) se firman en los seis registros de custodia, por los dos.
+### 6.5 Intercambio recíproco: evidencias de Luis Miguel Gomila
+A las 09:20 del 09/11/2026 recibo el pendrive de Luis Miguel Gomila (caso `lgomdom001`), con su fichero de hashes en `E:\PENDRIVE_HACKER\caso\`, y compruebo sus hashes con el mismo script de PowerShell. Todas las líneas salen `OK` (RAM, `red.pcap`, las dos E01 en `trabajo/`, herramientas, volátiles y triaje; el script y `hashes-sha256.csv` también). Capturas en `capturas/`. Firmo como receptor en su registro de custodia.
+ 
+### 6.6 Registro de custodia (`registro-custodia.pdf`)
+Un registro por evidencia, seis en total, en un solo PDF:
+ 
+| ID | Evidencia | Transferencias registradas |
+|---|---|---|
+| CASO-01 / 01 | Memoria RAM | Análisis en CAINE (08/11 23:30–23:39) · entrega 09/11 09:26 · devolución 09:32 |
+| CASO-01 / 02 | Datos volátiles | Entrega 09:26 · devolución 09:32 |
+| CASO-01 / 03 | Tráfico de red | Entrega 09:26 · devolución 09:32 |
+| CASO-01 / 04 | Triaje | Análisis en CAINE (08/11 23:40 – 09/11 00:29) · entrega · devolución |
+| CASO-01 / 05 | Disco | Copia de trabajo (08/11 21:02–21:03) · análisis en CAINE (08/11 23:50 – 09/11 00:03) · entrega · devolución |
+| CASO-01 / 06 | Pendrive | Copia de trabajo (08/11 21:02–21:03) · análisis en CAINE (09/11 00:04 – 00:38) · entrega de la imagen · devolución |
+ 
+- Número de precinto: no aplica (no se usaron precintos físicos).
+- Para el pendrive, la entrega es la de la imagen E01; el pendrive físico (Verbatim, pendrive de sustitución propio) queda en mi poder.
+- Destino final: las evidencias quedan bajo mi custodia (maestras en `D:\caso` y evidencias en vivo en el USB de respuesta), sin subirse al repositorio, hasta la evaluación de la actividad.
+
 ## 7. Incidencias y errores
 
 | Nº | Hora | Qué pasó | Causa | Qué hice |
@@ -405,7 +471,7 @@ Desmontaje de los sistemas de ficheros y de las imágenes (`umount /mnt/disco /m
 | 3 | 16:24 | Los cmdlets modernos del script (`Get-CimInstance`, `Get-NetTCPConnection`, `Get-FileHash`...) no existen en PowerShell 2.0. | Versión antigua de PowerShell. | Sustituidos por WMI y comandos nativos. |
 | 4 | 17:20 | KAPE se cerró con «ha dejado de funcionar». Detalle: `System.NotSupportedException` al negociar TLS. | El .NET Framework de este Windows 7 no soporta los protocolos TLS modernos. Persistió tras tocar ficheros de configuración y la clave del registro `SchUseStrongCrypto`. | Se descartó KAPE. |
 | 5 | 18:30 | Velociraptor `amd64`: «no es una aplicación Win32 válida». | El sistema es de 32 bits. | Se descartó esa compilación. |
-| 6 | 19:03 | Velociraptor 0.77.3 `386-legacy` no arrancó. | Faltan las bibliotecas Universal C Runtime (`api-ms-win-crt-*.dll`). Los intentos con paquetes `.msu` fallaron por restricciones del entorno. | [COMPLETAR: cómo se resolvió con la 0.76.1 legacy y qué se cambió en el equipo o en el USB]. |
+| 6 | 19:03 | Velociraptor 0.77.3 `386-legacy` no arrancó. | Faltan las bibliotecas Universal C Runtime (`api-ms-win-crt-*.dll`). Los intentos con paquetes `.msu` fallaron por restricciones del entorno. | Se resolvió usando la versión 0.76.1 legacy. |
 | 7 | 12:41 | `artifacts show Windows.KapeFiles.Targets` y `Windows.Triage.Targets`: «not found». | Esta compilación no incluye esos artefactos. | Se usó `Generic.Collectors.File` con rutas propias (ver 3.5). |
 | 8 | 17:02 | Captura de red: el primer intento no generó ningún `.pcap`. | La carpeta `D:\salida\CASO-01` no existía y VirtualBox no la crea. | Se creó la carpeta y se repitió; la captura es parcial (ver 3.4). |
 | 9 | 17:20 | La primera E01 del disco (`PC-ADMIN.E01`–`.E04`) tenía 26.118.144 sectores y, en el visor hexadecimal, la cabecera `<<< Oracle VirtualBox Disk Image >>>`. | FTK Imager 3.1.1.8 trata el `.vdi` como un fichero y no lee el disco que contiene. | Se conservó como historial y se hizo una nueva imagen a partir de un `.raw` creado con `clonemedium` (4.1.3). |
